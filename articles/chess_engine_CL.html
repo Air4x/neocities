@@ -3,18 +3,18 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2025-08-01 Fri 20:57 -->
+<!-- 2025-08-01 ven 22:14 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>What I learned from writing a chess engine in Common Lisp</title>
 <meta name="generator" content="Org Mode" />
-<link rel="stylesheet" type="text/css" href="simple.css" />
+<link rel="stylesheet" type="text/css" href="../simple.css" />
 </head>
 <body>
 <div id="content" class="content">
 <h1 class="title">What I learned from writing a chess engine in Common Lisp</h1>
-<div id="outline-container-org0a57da1" class="outline-2">
-<h2 id="org0a57da1"><span class="section-number-2">1.</span> Context&#xa0;&#xa0;&#xa0;<span class="tag"><span class="introduction">introduction</span></span></h2>
+<div id="outline-container-org900267e" class="outline-2">
+<h2 id="org900267e"><span class="section-number-2">1.</span> Context&#xa0;&#xa0;&#xa0;<span class="tag"><span class="introduction">introduction</span></span></h2>
 <div class="outline-text-2" id="text-1">
 <p>
 So, last month I did my "Elements of Artificial Intelligence"
@@ -28,8 +28,8 @@ play chess.
 </p>
 </div>
 </div>
-<div id="outline-container-orgc1eabda" class="outline-2">
-<h2 id="orgc1eabda"><span class="section-number-2">2.</span> Part 1: searching the best tool for the job</h2>
+<div id="outline-container-org69ece3d" class="outline-2">
+<h2 id="org69ece3d"><span class="section-number-2">2.</span> Part 1: searching the best tool for the job</h2>
 <div class="outline-text-2" id="text-2">
 <p>
 So before starting to write the engine, I did some research on:
@@ -39,31 +39,31 @@ So before starting to write the engine, I did some research on:
 <li>which language to use</li>
 </ul>
 </div>
-<div id="outline-container-org50f4207" class="outline-3">
-<h3 id="org50f4207"><span class="section-number-3">2.1.</span> How do you write a chess engine?</h3>
+<div id="outline-container-org1d8c740" class="outline-3">
+<h3 id="org1d8c740"><span class="section-number-3">2.1.</span> How do you write a chess engine?</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
 To answer this question I went to the <a href="https://www.chessprogramming.org">chess wiki</a>, where you can find a
-lot of information about board rappresentation, move generation and
+lot of information about board representation, move generation and
 why En Passant is a bitch. At this moment I decided to use what is
 called a <a href="https://www.chessprogramming.org/Bitboard_Board-Definition">BitBoard rappresentation</a>, which is a little less intuitive to
 the most common?  array based one. 
 </p>
 </div>
 </div>
-<div id="outline-container-org1b1ae03" class="outline-3">
-<h3 id="org1b1ae03"><span class="section-number-3">2.2.</span> Which language to use</h3>
+<div id="outline-container-orge70cc1e" class="outline-3">
+<h3 id="orge70cc1e"><span class="section-number-3">2.2.</span> Which language to use</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 The easier answer is Python for its ease of use, but I was already
-writing too much python for my taste becaus of another course so I <b>had</b>
+writing too much python for my taste because of another course so I <b>had</b>
 to use something else.  For a very short moment I thought about using
 Rust, mostly because of performance™, but the last time I wrote
 something in it was ~2 years ago and I still don't feel confident
 enough to use it for such big project (at least for me).  Anther
 choice was C/C++ (I know that they are different languages), but no.
-So the last choice was CommonLisp, I could say that this choice had
-some very deep reasons, like the fact tha lisp was the AI language for
+So the last choice was Common Lisp, I could say that this choice had
+some very deep reasons, like the fact that lisp was the AI language for
 some time, or the fact that CL is a high level language with "good"
 performance, but the real reason is just because I needed an excuse to
 write something in it. This is the only choice I didn't regret.
@@ -71,15 +71,15 @@ write something in it. This is the only choice I didn't regret.
 </div>
 </div>
 </div>
-<div id="outline-container-org0c73b8d" class="outline-2">
-<h2 id="org0c73b8d"><span class="section-number-2">3.</span> Part 2:the hard one, writing the engine</h2>
+<div id="outline-container-orgdba884f" class="outline-2">
+<h2 id="orgdba884f"><span class="section-number-2">3.</span> Part 2:the hard one, writing the engine</h2>
 <div class="outline-text-2" id="text-3">
 <p>
-If I had to summarise the entire experience I would use the word
+If I had to summarize the entire experience I would use the word
 <i>rocky</i>. Not because CL was a bad language, on the contrary, the real
 problem was between the chair and the keyboard: I don't know how to
 write a chess engine, let alone in Common Lisp. But this didn't scare
-me, unfortunaly, so I embarked in this adventure of writing everything
+me, unfortunately, so I embarked in this adventure of writing everything
 from scratch, a little because I still don't really understand how to
 manage libraries and a little because I wanted for once learn how to
 write something in its entirety. Writing the <code>Board</code> wasn't hard, just a
@@ -107,7 +107,7 @@ This piece of code define a <code>struct</code> (think of a C <code>struct</code
 </p>
 
 <p>
-Then I wrote the evaluetion function, something very stupid, copied
+Then I wrote the evaluation function, something very stupid, copied
 directly from <a href="https://www.chessprogrammin.org/Simplified_Evaluation_Function">here</a>.
 </p>
 <div class="org-src-container">
@@ -135,13 +135,13 @@ per ottenere il punteggio, che viene restituito"</span>
 </div>
 <p>
 I omitted the definitions of <code>square-tables</code> and of <code>values</code> for
-simplicity and also becuase they are nothing of particular.
+simplicity and also because they are nothing of particular.
 <code>square-tables</code> is a struct with the tables of the link above and <code>values</code>
 is a list of values for the pieces.
 </p>
 
 <p>
-Now the hard part: how to generete the moves and how to
+Now the hard part: how to generated the moves and how to
 apply them, here I made the choice that I still regret: I used ChatGPT
 to write part of the code. At the time I justified the thing by
 repeating to myself that I didn't have time, but in hindsight I think
@@ -156,25 +156,25 @@ I don't understand it. At the end of the project there are &lt;3&gt; files:
 <dt>search.lisp</dt><dd>where the Minimax algorithm is implemented</dd>
 </dl>
 <p>
-that I don't really have "controll" over, most of the code here has
+that I don't really have "control" over, most of the code here has
 been generated by a LLM and, probably, there is some dead code.
 </p>
 
 <p>
 Now on the positive, I had a lot of fun writing all the smaller
-functions, like <code>rank</code> and <code>file</code>. The multi-pradigm nature of Common Lisp
+functions, like <code>rank</code> and <code>file</code>. The multi-paradigm nature of Common Lisp
 let me write code in the way that seem more naturale and sensible for
 the given problem, instead to force to see everything as a class or as
 a function. Another cool thing was the repl, the ability to write a
 function, sending it to the repl and see it works ( or throwing an
-error) made the developtment loop (if we can call it that) a lot more
+error) made the development loop (if we can call it that) a lot more
 enjoyable, even when using a language in which I have no real
 experience.
 </p>
 </div>
 </div>
-<div id="outline-container-org8d81643" class="outline-2">
-<h2 id="org8d81643"><span class="section-number-2">4.</span> Conclusion</h2>
+<div id="outline-container-org50c18f7" class="outline-2">
+<h2 id="org50c18f7"><span class="section-number-2">4.</span> Conclusion</h2>
 <div class="outline-text-2" id="text-4">
 <p>
 In conclusion:
@@ -183,7 +183,7 @@ In conclusion:
 <li>I didn't learn how to play chess</li>
 <li>I passed the exam though</li>
 <li>I now have a semi-functional chess engine (with no En Passant) with no user interaction capabilities</li>
-<li>I learned a good lot of Common Lisp, did you know that integers (the fixnum kind) arent't 64 bit long on a 64bit architecture.</li>
+<li>I learned a good lot of Common Lisp, did you know that integers (the fixnum kind) aren't 64 bit long on a 64bit architecture.</li>
 </ul>
 
 <p>
@@ -195,7 +195,7 @@ code</a> if you are curious about the mess I made
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2025-08-01 Fri 20:57</p>
+<p class="date">Created: 2025-08-01 ven 22:14</p>
 <p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>

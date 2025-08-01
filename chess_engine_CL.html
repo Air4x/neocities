@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2025-08-01 Fri 20:57 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>What I learned from writing a chess engine in Common Lisp</title>
+<meta name="generator" content="Org Mode" />
+<link rel="stylesheet" type="text/css" href="simple.css" />
+</head>
+<body>
+<div id="content" class="content">
+<h1 class="title">What I learned from writing a chess engine in Common Lisp</h1>
+<div id="outline-container-org0a57da1" class="outline-2">
+<h2 id="org0a57da1"><span class="section-number-2">1.</span> Context&#xa0;&#xa0;&#xa0;<span class="tag"><span class="introduction">introduction</span></span></h2>
+<div class="outline-text-2" id="text-1">
+<p>
+So, last month I did my "Elements of Artificial Intelligence"
+exam. The exam is an oral test made of three question with the
+possibility of bringing a <i>small</i> project on some part of the
+syllabus. I used this as an opportunity to write something
+interesting, and because part of the course is about game theory I
+decided to write a almost full blown <b>chess engine</b>, mostly because I
+don't really like myself and as an excuse to, hopefully, learn how to
+play chess.
+</p>
+</div>
+</div>
+<div id="outline-container-orgc1eabda" class="outline-2">
+<h2 id="orgc1eabda"><span class="section-number-2">2.</span> Part 1: searching the best tool for the job</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+So before starting to write the engine, I did some research on:
+</p>
+<ul class="org-ul">
+<li>how the hell do you write a chess engine</li>
+<li>which language to use</li>
+</ul>
+</div>
+<div id="outline-container-org50f4207" class="outline-3">
+<h3 id="org50f4207"><span class="section-number-3">2.1.</span> How do you write a chess engine?</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+To answer this question I went to the <a href="https://www.chessprogramming.org">chess wiki</a>, where you can find a
+lot of information about board rappresentation, move generation and
+why En Passant is a bitch. At this moment I decided to use what is
+called a <a href="https://www.chessprogramming.org/Bitboard_Board-Definition">BitBoard rappresentation</a>, which is a little less intuitive to
+the most common?  array based one. 
+</p>
+</div>
+</div>
+<div id="outline-container-org1b1ae03" class="outline-3">
+<h3 id="org1b1ae03"><span class="section-number-3">2.2.</span> Which language to use</h3>
+<div class="outline-text-3" id="text-2-2">
+<p>
+The easier answer is Python for its ease of use, but I was already
+writing too much python for my taste becaus of another course so I <b>had</b>
+to use something else.  For a very short moment I thought about using
+Rust, mostly because of performance™, but the last time I wrote
+something in it was ~2 years ago and I still don't feel confident
+enough to use it for such big project (at least for me).  Anther
+choice was C/C++ (I know that they are different languages), but no.
+So the last choice was CommonLisp, I could say that this choice had
+some very deep reasons, like the fact tha lisp was the AI language for
+some time, or the fact that CL is a high level language with "good"
+performance, but the real reason is just because I needed an excuse to
+write something in it. This is the only choice I didn't regret.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-org0c73b8d" class="outline-2">
+<h2 id="org0c73b8d"><span class="section-number-2">3.</span> Part 2:the hard one, writing the engine</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+If I had to summarise the entire experience I would use the word
+<i>rocky</i>. Not because CL was a bad language, on the contrary, the real
+problem was between the chair and the keyboard: I don't know how to
+write a chess engine, let alone in Common Lisp. But this didn't scare
+me, unfortunaly, so I embarked in this adventure of writing everything
+from scratch, a little because I still don't really understand how to
+manage libraries and a little because I wanted for once learn how to
+write something in its entirety. Writing the <code>Board</code> wasn't hard, just a
+struct with 16 records and a bunch of functions to initialize it.
+</p>
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #ffffff;">(</span><span style="color: #b6a0ff;">defstruct</span> <span style="color: #6ae4b9;">Board</span>
+  WKnights
+  WPawns
+  WRooks
+  WBishops
+  WKings
+  WQueens
+  BPawns
+  BKnights
+  BBishops
+  BRooks
+  BKings
+  BQueens<span style="color: #ffffff;">)</span>
+</pre>
+</div>
+<p>
+This piece of code define a <code>struct</code> (think of a C <code>struct</code>), its
+"constructor", a predicate, and an accessor for every record
+</p>
+
+<p>
+Then I wrote the evaluetion function, something very stupid, copied
+directly from <a href="https://www.chessprogrammin.org/Simplified_Evaluation_Function">here</a>.
+</p>
+<div class="org-src-container">
+<pre class="src src-lisp"><span style="color: #ffffff;">(</span><span style="color: #b6a0ff;">defun</span> <span style="color: #feacd0;">valuta-posizione</span> <span style="color: #ff66ff;">(</span>posizione values square-tables<span style="color: #ff66ff;">)</span>
+  <span style="color: #9ac8e0;">"Data una posizione, la valuta in relazione al giocatore che
+deve giocate ed utilizza i valori dei pezzi e la loro posizione
+per ottenere il punteggio, che viene restituito"</span>
+  <span style="color: #ff66ff;">(</span><span style="color: #b6a0ff;">let</span> <span style="color: #00eff0;">(</span><span style="color: #ff6b55;">(</span>score 0<span style="color: #ff6b55;">)</span>
+        <span style="color: #ff6b55;">(</span>pezzi '<span style="color: #efef00;">(</span><span style="color: #f78fe7;">:pawn</span> <span style="color: #f78fe7;">:knight</span> <span style="color: #f78fe7;">:bishop</span> <span style="color: #f78fe7;">:rook</span> <span style="color: #f78fe7;">:queen</span> <span style="color: #f78fe7;">:king</span><span style="color: #efef00;">)</span><span style="color: #ff6b55;">)</span>
+        <span style="color: #ff6b55;">(</span>giocatore <span style="color: #efef00;">(</span>Posizione-giocatore posizione<span style="color: #efef00;">)</span><span style="color: #ff6b55;">)</span><span style="color: #00eff0;">)</span>
+    <span style="color: #00eff0;">(</span><span style="color: #b6a0ff;">dolist</span> <span style="color: #ff6b55;">(</span>pezzo pezzi<span style="color: #ff6b55;">)</span>
+      <span style="color: #ff6b55;">(</span><span style="color: #b6a0ff;">let*</span> <span style="color: #efef00;">(</span><span style="color: #b6a0ff;">(</span>bianco <span style="color: #44df44;">(</span>get-White-piece pezzo <span style="color: #79a8ff;">(</span>Posizione-board posizione<span style="color: #79a8ff;">)</span><span style="color: #44df44;">)</span><span style="color: #b6a0ff;">)</span>
+             <span style="color: #b6a0ff;">(</span>valore-pezzo <span style="color: #44df44;">(</span>cadr <span style="color: #79a8ff;">(</span>assoc pezzo values<span style="color: #79a8ff;">)</span><span style="color: #44df44;">)</span><span style="color: #b6a0ff;">)</span>
+             <span style="color: #b6a0ff;">(</span>square-table <span style="color: #44df44;">(</span>get-square-table pezzo giocatore <span style="color: #79a8ff;">(</span>endgame-p posizione<span style="color: #79a8ff;">)</span> square-tables<span style="color: #44df44;">)</span><span style="color: #b6a0ff;">)</span><span style="color: #efef00;">)</span>
+        <span style="color: #efef00;">(</span><span style="color: #b6a0ff;">dotimes</span> <span style="color: #b6a0ff;">(</span>i 64<span style="color: #b6a0ff;">)</span>
+          <span style="color: #b6a0ff;">(</span><span style="color: #b6a0ff;">when</span> <span style="color: #44df44;">(</span>= 1 <span style="color: #79a8ff;">(</span>elt bianco i<span style="color: #79a8ff;">)</span><span style="color: #44df44;">)</span>
+            <span style="color: #989898;">;; </span><span style="color: #989898;">Se il giocatore &#232; nero inverti l'indice della square table
+</span>            <span style="color: #44df44;">(</span><span style="color: #b6a0ff;">let</span> <span style="color: #79a8ff;">(</span><span style="color: #f78fe7;">(</span>indice <span style="color: #ffffff;">(</span><span style="color: #b6a0ff;">if</span> <span style="color: #ff66ff;">(</span>eq giocatore <span style="color: #f78fe7;">:nero</span><span style="color: #ff66ff;">)</span> <span style="color: #ff66ff;">(</span>- 63 i<span style="color: #ff66ff;">)</span> i<span style="color: #ffffff;">)</span><span style="color: #f78fe7;">)</span><span style="color: #79a8ff;">)</span>
+              <span style="color: #79a8ff;">(</span>incf score valore-pezzo<span style="color: #79a8ff;">)</span>
+              <span style="color: #79a8ff;">(</span>incf score <span style="color: #f78fe7;">(</span>nth indice square-table<span style="color: #f78fe7;">)</span><span style="color: #79a8ff;">)</span><span style="color: #44df44;">)</span><span style="color: #b6a0ff;">)</span><span style="color: #efef00;">)</span><span style="color: #ff6b55;">)</span><span style="color: #00eff0;">)</span>
+    <span style="color: #00eff0;">(</span><span style="color: #b6a0ff;">if</span> <span style="color: #ff6b55;">(</span>eq giocatore <span style="color: #f78fe7;">:nero</span><span style="color: #ff6b55;">)</span>
+        <span style="color: #ff6b55;">(</span>- score<span style="color: #ff6b55;">)</span>
+        score<span style="color: #00eff0;">)</span><span style="color: #ff66ff;">)</span><span style="color: #ffffff;">)</span>
+</pre>
+</div>
+<p>
+I omitted the definitions of <code>square-tables</code> and of <code>values</code> for
+simplicity and also becuase they are nothing of particular.
+<code>square-tables</code> is a struct with the tables of the link above and <code>values</code>
+is a list of values for the pieces.
+</p>
+
+<p>
+Now the hard part: how to generete the moves and how to
+apply them, here I made the choice that I still regret: I used ChatGPT
+to write part of the code. At the time I justified the thing by
+repeating to myself that I didn't have time, but in hindsight I think
+that the faster creation of code wasn't worth it. The entire part of
+the program that manage the generation of moves and their application
+is unreadable, I copy pasted that code, I read it, I committed it, but
+I don't understand it. At the end of the project there are &lt;3&gt; files:
+</p>
+<dl class="org-dl">
+<dt>move.lisp</dt><dd>where move generation is located</dd>
+<dt>check.lisp</dt><dd>a bunch of helper function, which use is still not exactly clear to me</dd>
+<dt>search.lisp</dt><dd>where the Minimax algorithm is implemented</dd>
+</dl>
+<p>
+that I don't really have "controll" over, most of the code here has
+been generated by a LLM and, probably, there is some dead code.
+</p>
+
+<p>
+Now on the positive, I had a lot of fun writing all the smaller
+functions, like <code>rank</code> and <code>file</code>. The multi-pradigm nature of Common Lisp
+let me write code in the way that seem more naturale and sensible for
+the given problem, instead to force to see everything as a class or as
+a function. Another cool thing was the repl, the ability to write a
+function, sending it to the repl and see it works ( or throwing an
+error) made the developtment loop (if we can call it that) a lot more
+enjoyable, even when using a language in which I have no real
+experience.
+</p>
+</div>
+</div>
+<div id="outline-container-org8d81643" class="outline-2">
+<h2 id="org8d81643"><span class="section-number-2">4.</span> Conclusion</h2>
+<div class="outline-text-2" id="text-4">
+<p>
+In conclusion:
+</p>
+<ul class="org-ul">
+<li>I didn't learn how to play chess</li>
+<li>I passed the exam though</li>
+<li>I now have a semi-functional chess engine (with no En Passant) with no user interaction capabilities</li>
+<li>I learned a good lot of Common Lisp, did you know that integers (the fixnum kind) arent't 64 bit long on a 64bit architecture.</li>
+</ul>
+
+<p>
+Now the last thing to do is to rewrite the entire thing with no LLM
+generated code and the ability to interact with the user. <a href="https://github.com/Air4x/alphaknight">Here the
+code</a> if you are curious about the mess I made
+</p>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="date">Created: 2025-08-01 Fri 20:57</p>
+<p class="validation"><a href="https://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>
